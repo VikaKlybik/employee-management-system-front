@@ -45,7 +45,6 @@ export default function EmployeeTableData( employees ) {
       { Header: "Работает с", accessor: "employed", align: "center" },
       { Header: "Действие", accessor: "action", align: "center" },
       { Header: "KPI", accessor: "kpi", align: "center"},
-      { Header: "Планы развития", accessor: "developmentPlan", align: "center"}
     ],
 
     rows: employees?.map(({ id, user, jobTitle, department, workSince }, index) => {
@@ -74,11 +73,6 @@ export default function EmployeeTableData( employees ) {
             Смотреть
           </MDTypography>
         ),
-        developmentPlan: (
-          <MDTypography component="a" href={`/kpi/for-employee/${id}`} variant="overline" fontWeight="medium">
-            Смотреть
-          </MDTypography>
-        )
       };
     }) // Ensure we return an empty array if content is undefined
   };
