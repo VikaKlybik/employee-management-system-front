@@ -11,34 +11,71 @@ import kpiTableData from "../tables/data/kpiTableData";
 import KPIService from "../../services/KPIService";
 import { useAuth } from "../../context/AuthContext";
 import MDButton from "../../components/MDButton";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import KpiAssessmentModal from "../../examples/Modal/KpiAssesmentDialog";
+import { ArrowSelect } from "../../examples/ArrowSelect";
 
 function EmployeeKPITables() {
   const authContext = useAuth();
   const kpiService = new KPIService();
   const employeeService = new EmployeeService();
   const [kpiList, setKpiList] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
   const [tableData, setTableData] = useState({ columns: [], rows: [] });
+  const [kpiPeriods, setKpiPeriods] = useState([]);
+  const [selectedKpiPeriod, setSelectedKpiPeriod] = useState();
+
+  const handleMenuItemClick = (item) => {
+    console.log("Selected:", item);
+    if(item.action === "detail_view") {
+      navigate(`/my-kpi/assessment/${item.kpi_id}`);
+    }
+  };
+  const isModalOpen = location.pathname.includes("/my-kpi/assessment/");
 
   useEffect(() => {
     async function fetchAllEmployeeKpi() {
       try {
         const user = authContext.getUser()
         const employee = await employeeService.getEmployeeById(user.id);
-        const response = await kpiService.getKPIForEmployee(employee.data.id);
+        const response = await kpiService.getKPIForEmployee(employee.data.id, {
+          kpiPeriodId: selectedKpiPeriod,
+        });
         console.log("Fetched kpi data:", response.data); // Debug log
         setKpiList(response.data);
       } catch (error) {
         console.log("Error fetching employee:", error);
       }
     }
+    if(selectedKpiPeriod) {
+      fetchAllEmployeeKpi();
+    }
+  }, [selectedKpiPeriod]);
 
-    fetchAllEmployeeKpi();
+  useEffect(() => {
+    async function fetchKPIPeriods() {
+      try {
+        const response = await kpiService.getKPIPeriods();
+        console.log("Fetched kpi data:", response.data); // Debug log
+        setKpiPeriods(response.data.map(({ id, startDate, endDate }) => {
+          return {
+            value: id,
+            name: `${startDate.toLocaleString()} - ${endDate.toLocaleString()}`,
+          };
+        }));
+      } catch (error) {
+        console.log("Error fetching employee:", error);
+      }
+    }
+
+    fetchKPIPeriods();
   }, []);
 
   useEffect(() => {
     if (kpiList) {
-      const myTableData = kpiTableData(kpiList);
-      console.log("Generated table data:", myTableData); // Debug log
+      const myTableData = kpiTableData(kpiList, handleMenuItemClick);
+      console.log("Generated table data:", myTableData);
       setTableData(myTableData);
     }
   }, [kpiList]);
@@ -66,6 +103,12 @@ function EmployeeKPITables() {
                 <MDTypography variant="h6" color="white">
                   KPI
                 </MDTypography>
+                {kpiPeriods && kpiPeriods.length !== 0 &&
+                  <ArrowSelect
+                    options={kpiPeriods}
+                    handleOptionChange={setSelectedKpiPeriod}
+                  />
+                }
                 <MDButton color="primary" variant="contained">
                   Выгрузить отчёт
                 </MDButton>
@@ -83,6 +126,9 @@ function EmployeeKPITables() {
           </Grid>
         </Grid>
       </MDBox>
+      <Outlet/>
+      <KpiAssessmentModal
+        isModalOpen={isModalOpen}/>
     </DashboardLayout>
   );
 }

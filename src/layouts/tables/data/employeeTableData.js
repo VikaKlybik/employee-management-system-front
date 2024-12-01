@@ -40,19 +40,20 @@ export default function EmployeeTableData( employees ) {
 
   return {
     columns: [
-      { Header: "Сотрудник", accessor: "fullName", width: "45%", align: "left" },
+      { Header: "Сотрудник", accessor: "fullName", width: "25%", align: "left" },
       { Header: "Отдел/Должность", accessor: "function", align: "left" },
       { Header: "Работает с", accessor: "employed", align: "center" },
       { Header: "Действие", accessor: "action", align: "center" },
-      { Header: "KPI", accessor: "kpi", align: "center"}
+      { Header: "KPI", accessor: "kpi", align: "center"},
+      { Header: "Планы развития", accessor: "developmentPlan", align: "center"}
     ],
 
-    rows: employees.content?.map(({ user, jobTitle, department, workSince }, index) => {
+    rows: employees?.map(({ id, user, jobTitle, department, workSince }, index) => {
       return {
         fullName: (
           <Author
-            key={`author-${index}`} // Added key prop
-            image={team2}
+            key={`author-${index}`}
+            image={user?.profilePhotoUrl}
             name={`${user?.lastName} ${user?.firstName}`}
             email={`${user?.email}`}
           />
@@ -69,7 +70,12 @@ export default function EmployeeTableData( employees ) {
           </MDTypography>
         ),
         kpi : (
-          <MDTypography component="a" href={`/kpi/${user?.id}`} variant="overline" color="info" fontWeight="medium">
+          <MDTypography component="a" href={`/kpi/for-employee/${id}`} variant="overline" color="info" fontWeight="medium">
+            Смотреть
+          </MDTypography>
+        ),
+        developmentPlan: (
+          <MDTypography component="a" href={`/kpi/for-employee/${id}`} variant="overline" fontWeight="medium">
             Смотреть
           </MDTypography>
         )

@@ -16,6 +16,7 @@ axiosInstance.interceptors.request.use((config) => {
 });
 
 const ApiService = {
+  getFile: (url, params) => axiosInstance.get(url, { params, responseType: 'blob' }),
   get: (url, params) => axiosInstance.get(url, { params }),
   post: (url, data) => axiosInstance.post(url, data),
   put: (url, data) => axiosInstance.put(url, data),

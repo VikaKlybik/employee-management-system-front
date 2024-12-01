@@ -44,6 +44,16 @@ import Icon from "@mui/material/Icon";
 import Employee from "./layouts/employee";
 import EmployeeKpi from "./layouts/employeeKpi";
 import Logout from "./layouts/logout";
+import SurveyList from "./layouts/survey/list";
+import SurveyPage from "./layouts/survey/pass";
+import SurveyCreate from "./layouts/survey/create";
+import SurveyEvaluators from "./layouts/survey/evaluators";
+import KpiAssessmentModal from "./examples/Modal/KpiAssesmentDialog";
+import SurveyStats from "./layouts/survey/stats";
+import EmployeeKPITables from "./layouts/employeeKpiAsAdmin";
+import KpiAssessmentModalAsAdmin from "./examples/Modal/KpiAssesmentDialogAsAdmin";
+import CreateDevelopmentPlanForEmployeeModal
+  from "./layouts/developmentPlan/createForEmployee/CreateDevelopmentPlanForEmployeeModal";
 
 const routes = [
   // {
@@ -79,12 +89,23 @@ const routes = [
   //   component: <Notifications />,
   // },
   {
-    type: "collapse",
+    type: "route",
     name: "KPI",
     key: "employees-kpi",
-    route: "/kpi/:id",
-    component: <EmployeeKpi />,
+    route: "/kpi/for-employee/:id",
+    component: <EmployeeKPITables />,
     role: ["admin", "manager"],
+    child: [
+      {
+        type: "route",
+        name: "KPI assessment",
+        key: "kpi-assessment",
+        route: "/kpi/for-employee/:id/assessment/:kpiId",
+        component: <KpiAssessmentModalAsAdmin />,
+        redirect: "/employee",
+        role: ["admin", "manager"]
+      },
+    ]
   },
   {
     type: "collapse",
@@ -93,6 +114,17 @@ const routes = [
     route: "/my-kpi",
     component: <EmployeeKpi />,
     role: ["employee"],
+    child: [
+      {
+        type: "route",
+        name: "KPI assessment",
+        key: "kpi-assessment",
+        route: "/my-kpi/assessment/:id",
+        component: <KpiAssessmentModal />,
+        redirect: "/profile",
+        role: ["employee"]
+      },
+    ]
   },
   {
     type: "collapse",
@@ -120,14 +152,59 @@ const routes = [
     redirect: "/profile",
   },
   {
+    type: "route",
+    name: "Распределение оценщиков",
+    key: "survey-evaluators",
+    route: "/survey/:id/evaluators",
+    component: <SurveyEvaluators />,
+    role: ["admin", "manager"],
+    redirect: "/survey",
+  },
+  {
+    type: "route",
+    name: "Статистика опроса",
+    key: "survey-stats",
+    route: "/survey/:id/stats",
+    component: <SurveyStats />,
+    role: ["admin", "manager"],
+    redirect: "/survey",
+  },
+  {
+    type: "collapse",
+    name: "Опросы",
+    key: "surveys",
+    route: "/survey",
+    component: <SurveyList />,
+    role: ["admin", "manager"],
+    redirect: "/survey",
+  },
+  {
+    type: "route",
+    name: "Прохождение опроса",
+    key: "survey-detail",
+    route: "/survey/:id",
+    component: <SurveyPage />,
+    role: ["admin", "employee", "manager"],
+    redirect: "/profile",
+  },
+  {
+    type: "collapse",
+    name: "Создание опроса",
+    key: "survey-create",
+    route: "/survey-create",
+    component: <SurveyCreate />,
+    role: ["admin", "manager"],
+    redirect: "/profile",
+  },
+  {
     type: "collapse",
     name: "Выход из системы",
-    key: "employees",
+    key: "logout",
     route: "/logout",
     component: <Logout />,
     role: ["admin", "employee", "manager"],
     redirect: "/profile",
-  },
+  }
   // {
   //   type: "collapse",
   //   name: "Sign Up",

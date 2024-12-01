@@ -102,7 +102,7 @@ function DefaultProjectCard({ image, label, title, description, action, authors 
             </MDTypography>
           )}
         </MDBox>
-        <MDBox mb={3} lineHeight={0}>
+        <MDBox mb={3} lineHeight={0} height={"50px"}>
           <MDTypography variant="button" fontWeight="light" color="text">
             {description}
           </MDTypography>
@@ -131,7 +131,6 @@ function DefaultProjectCard({ image, label, title, description, action, authors 
               {action.label}
             </MDButton>
           )}
-          <MDBox display="flex">{renderAuthors}</MDBox>
         </MDBox>
       </MDBox>
     </Card>
