@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 // react-router components
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 // @mui material components
 import { ThemeProvider } from "@mui/material/styles";
@@ -32,7 +32,7 @@ import createCache from "@emotion/cache";
 import routes from "routes";
 
 // Material Dashboard 2 React contexts
-import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
+import { setMiniSidenav, setOpenConfigurator, useMaterialUIController } from "context";
 
 // Images
 import brandWhite from "assets/images/logo-ct.png";
@@ -55,7 +55,7 @@ export default function App() {
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const [rtlCache, setRtlCache] = useState(null);
   const { pathname } = useLocation();
-  const {getUser} = useAuth();
+  const { getUser } = useAuth();
 
   // Cache for the rtl
   useMemo(() => {
@@ -109,12 +109,13 @@ export default function App() {
             <Route path={route.route} element={route.component} key={route.key} />
           );
         } else {
-          // User is logged in, redirect to specified route
-          if(user.role === 'employee'){
-            return <Route key={route.key} path={route.route} element={<Navigate to={route.redirect} replace />} />;
-          } else {
-            return <Route key={route.key} path={route.route} element={<Navigate to={'/employee'} replace />} />;
-          }
+          const navigateRoute = user.role === "employee" ? route.redirect : "/employee";
+          return <Route key={route.key} path={route.route} element={<Navigate to={navigateRoute} replace />}>
+            {route.child && route.child.map(child =>
+              <Route key={child.key} path={child.route}/>
+              )}
+          </Route>;
+
         }
       } else {
         // Route requires specific roles
@@ -127,7 +128,19 @@ export default function App() {
               </ProtectedRoute>
             }
             key={route.key}
-          />
+          >
+            {route.child && route.child.map(child =>
+              <Route
+                path={child.route}
+                element={
+                  <ProtectedRoute roles={child.role}>
+                    {child.component}
+                  </ProtectedRoute>
+                }
+                key={child.key}
+              />
+            )}
+          </Route>
         );
       }
     });
@@ -185,30 +198,30 @@ export default function App() {
       </ThemeProvider>
     </CacheProvider>
   ) : (
-  <ThemeProvider theme={darkMode ? themeDark : theme}>
-    <CssBaseline />
-    {layout === "dashboard" && (
-      <>
-        <Sidenav
-          color={sidenavColor}
-          brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-          brandName="Employee Management"
-          routes={routes}
-          onMouseEnter={handleOnMouseEnter}
-          onMouseLeave={handleOnMouseLeave}
+    <ThemeProvider theme={darkMode ? themeDark : theme}>
+      <CssBaseline />
+      {layout === "dashboard" && (
+        <>
+          <Sidenav
+            color={sidenavColor}
+            brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
+            brandName="Employee Management"
+            routes={routes}
+            onMouseEnter={handleOnMouseEnter}
+            onMouseLeave={handleOnMouseLeave}
+          />
+          <Configurator />
+          {configsButton}
+        </>
+      )}
+      {layout === "vr" && <Configurator />}
+      <Routes>
+        <Route
+          path="/"
+          element={<Navigate to="/login" replace={true} />}
         />
-        <Configurator />
-        {configsButton}
-      </>
-    )}
-    {layout === "vr" && <Configurator />}
-    <Routes>
-      <Route
-        path="/"
-        element={<Navigate to="/login" replace={true} />}
-      />
-      {getRoutes(routes)}
-    </Routes>
-  </ThemeProvider>
+        {getRoutes(routes)}
+      </Routes>
+    </ThemeProvider>
   );
 };

@@ -1,27 +1,8 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Divider from "@mui/material/Divider";
 
 // @mui icons
-import FacebookIcon from "@mui/icons-material/Facebook";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import InstagramIcon from "@mui/icons-material/Instagram";
-
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
@@ -29,23 +10,16 @@ import MDTypography from "components/MDTypography";
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import ProfileInfoCard from "examples/Cards/InfoCards/ProfileInfoCard";
 import ProfilesList from "examples/Lists/ProfilesList";
 import DefaultProjectCard from "examples/Cards/ProjectCards/DefaultProjectCard";
 
 // Overview page components
 import Header from "layouts/profile/components/Header";
-import PlatformSettings from "layouts/profile/components/PlatformSettings";
 
 // Data
-import profilesListData from "layouts/profile/data/profilesListData";
-
 // Images
 import homeDecor1 from "assets/images/home-decor-1.jpg";
-import homeDecor2 from "assets/images/home-decor-2.jpg";
-import homeDecor3 from "assets/images/home-decor-3.jpg";
-import homeDecor4 from "assets/images/home-decor-4.jpeg";
 import team1 from "assets/images/team-1.jpg";
 import team2 from "assets/images/team-2.jpg";
 import team3 from "assets/images/team-3.jpg";
@@ -53,18 +27,22 @@ import team4 from "assets/images/team-4.jpg";
 import { useAuth } from "../../context/AuthContext";
 import { useEffect, useState } from "react";
 import EmployeeService from "../../services/EmployeeService";
+import SurveyService from "../../services/SurveyService";
 
 function Overview() {
   const [employee, setEmployee] = useState(null);
   const [subordinates, setSubordinates] = useState(null);
+  const [availableSurveys, setAvailableSurveys] = useState([]);
   const authContext = useAuth();
   const employeeService = new EmployeeService();
+  const surveyService = new SurveyService();
 
-  useEffect( () => {
+  useEffect(() => {
+    const user = authContext.getUser();
+
     // Объявите асинхронную функцию внутри useEffect
     async function fetchEmployee() {
       try {
-        const user = authContext.getUser();
         const response = await employeeService.getEmployeeById(user.id);
         setEmployee(response.data);
         await fetchSubordinates(response.data.jobTitle.id);
@@ -72,20 +50,32 @@ function Overview() {
         console.error("Error fetching employee:", error);
       }
     }
+
     async function fetchSubordinates(leadId) {
       try {
         const response = await employeeService.getEmployee({
           leadId: leadId,
-          pageSize: 6
-        })
+          pageSize: 6,
+        });
         setSubordinates(response.data);
       } catch (error) {
         console.error("Error fetching subordinates:", error);
       }
     }
+
+    async function fetchAvailableSurveyToPass() {
+      try {
+        const response = await surveyService.getSurveyToBePassByEmployee(user.id);
+        setAvailableSurveys(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
     fetchEmployee();
+    fetchAvailableSurveyToPass();
   }, []);
-  
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -94,6 +84,7 @@ function Overview() {
         {
           fullName: `${employee?.user?.lastName} ${employee?.user?.firstName}`,
           title: `${employee?.department?.name} / ${employee?.jobTitle?.name}`,
+          profilePhotoUrl: employee?.user?.profilePhotoUrl,
         }
       }>
         <MDBox mt={5} mb={3}>
@@ -114,103 +105,39 @@ function Overview() {
               <Divider orientation="vertical" sx={{ mx: 0 }} />
             </Grid>
             <Grid item xs={12} xl={6}>
-              <ProfilesList title="Подчинённые" profiles={subordinates?.content} shadow={false} />
+              <ProfilesList title="Подчинённые" profiles={subordinates} shadow={false} />
             </Grid>
           </Grid>
         </MDBox>
         <MDBox pt={2} px={2} lineHeight={1.25}>
           <MDTypography variant="h6" fontWeight="medium">
-            Projects
+            Опросы
           </MDTypography>
           <MDBox mb={1}>
             <MDTypography variant="button" color="text">
-              Architects design houses
+              Оцените коллег или, возможно, себя
             </MDTypography>
           </MDBox>
         </MDBox>
         <MDBox p={2}>
           <Grid container spacing={6}>
-            <Grid item xs={12} md={6} xl={3}>
-              <DefaultProjectCard
-                image={homeDecor1}
-                label="project #2"
-                title="modern"
-                description="As Uber works through a huge amount of internal management turmoil."
-                action={{
-                  type: "internal",
-                  route: "/pages/profile/profile-overview",
-                  color: "info",
-                  label: "view project",
-                }}
-                authors={[
-                  { image: team1, name: "Elena Morison" },
-                  { image: team2, name: "Ryan Milly" },
-                  { image: team3, name: "Nick Daniel" },
-                  { image: team4, name: "Peterson" },
-                ]}
-              />
-            </Grid>
-            <Grid item xs={12} md={6} xl={3}>
-              <DefaultProjectCard
-                image={homeDecor2}
-                label="project #1"
-                title="scandinavian"
-                description="Music is something that everyone has their own specific opinion about."
-                action={{
-                  type: "internal",
-                  route: "/pages/profile/profile-overview",
-                  color: "info",
-                  label: "view project",
-                }}
-                authors={[
-                  { image: team3, name: "Nick Daniel" },
-                  { image: team4, name: "Peterson" },
-                  { image: team1, name: "Elena Morison" },
-                  { image: team2, name: "Ryan Milly" },
-                ]}
-              />
-            </Grid>
-            <Grid item xs={12} md={6} xl={3}>
-              <DefaultProjectCard
-                image={homeDecor3}
-                label="project #3"
-                title="minimalist"
-                description="Different people have different taste, and various types of music."
-                action={{
-                  type: "internal",
-                  route: "/pages/profile/profile-overview",
-                  color: "info",
-                  label: "view project",
-                }}
-                authors={[
-                  { image: team4, name: "Peterson" },
-                  { image: team3, name: "Nick Daniel" },
-                  { image: team2, name: "Ryan Milly" },
-                  { image: team1, name: "Elena Morison" },
-                ]}
-              />
-            </Grid>
-            <Grid item xs={12} md={6} xl={3}>
-              <DefaultProjectCard
-                image={homeDecor4}
-                label="project #4"
-                title="gothic"
-                description="Why would anyone pick blue over pink? Pink is obviously a better color."
-                action={{
-                  type: "internal",
-                  route: "/pages/profile/profile-overview",
-                  color: "info",
-                  label: "view project",
-                }}
-                authors={[
-                  { image: team4, name: "Peterson" },
-                  { image: team3, name: "Nick Daniel" },
-                  { image: team2, name: "Ryan Milly" },
-                  { image: team1, name: "Elena Morison" },
-                ]}
-              />
-            </Grid>
-          </Grid>
+            {availableSurveys && availableSurveys.map((passing) => (
+              <Grid item xs={12} md={6} xl={3}>
+                <DefaultProjectCard
+                  image={passing.evaluatedPerson.user.profilePhotoUrl}
+                  label={passing.survey.name}
+                  title={passing.evaluatedPerson.user.lastName + ' ' +passing.evaluatedPerson.user.firstName}
+                  description={passing.evaluatedPerson.department.name + ', ' + passing.evaluatedPerson.jobTitle.name}
+                  action={{
+                    type: "internal",
+                    route: `/survey/${passing.id}`,
+                    color: "info",
+                    label: "Пройти опрос",
+                  }}
+                />
+              </Grid>
+            ))}
+          < /Grid>
         </MDBox>
       </Header>
 

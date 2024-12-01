@@ -7,6 +7,9 @@ class EmployeeService {
   async getEmployee(filterParam) {
     return ApiService.get(`/employee`, filterParam);
   }
+  async generateDefaultEvaluators(filterParam) {
+    return ApiService.get(`/employee/evaluators/generate`, filterParam);
+  }
 }
 
 export default EmployeeService;

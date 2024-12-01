@@ -21,7 +21,7 @@ import { useNavigate } from "react-router-dom";
 
 function Basic() {
   const authService = new AuthService();
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const authContext = useAuth();
   const navigate = useNavigate();
   const enterUser = async (data) => {

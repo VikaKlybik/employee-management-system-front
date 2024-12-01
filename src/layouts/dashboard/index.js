@@ -34,10 +34,15 @@ import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 // Dashboard components
 import Projects from "layouts/dashboard/components/Projects";
 import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
+import { useMaterialUIController } from "../../context";
 
 function Dashboard() {
   const { sales, tasks } = reportsLineChartData;
-
+  const [controller] = useMaterialUIController();
+  const {
+    sidenavColor,
+    darkMode
+  } = controller;
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -51,7 +56,7 @@ function Dashboard() {
                 title="Bookings"
                 count={281}
                 percentage={{
-                  color: "success",
+                  color: sidenavColor,
                   amount: "+55%",
                   label: "than lask week",
                 }}
