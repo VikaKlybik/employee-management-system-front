@@ -49,6 +49,14 @@ class SurveyService {
   async getReportForUser(surveyId, userId) {
     return ApiService.getFile( `/survey/${surveyId}/report/for-employee/${userId}`);
   }
+
+  async sendNotifyMessage(id) {
+    return ApiService.post(`/notification/survey/${id}/published`);
+  }
+
+  async sendRemindMessage(id) {
+    return ApiService.post(`/notification/remind/passing-list/${id}`);
+  }
 }
 
 export default SurveyService;

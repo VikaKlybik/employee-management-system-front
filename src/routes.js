@@ -198,6 +198,15 @@ const routes = [
   },
   {
     type: "collapse",
+    name: "Результаты опросов",
+    key: "survey-create",
+    route: "/survey-result",
+    component: <SurveyCreate />,
+    role: ["employee"],
+    redirect: "/profile",
+  },
+  {
+    type: "collapse",
     name: "Выход из системы",
     key: "logout",
     route: "/logout",
