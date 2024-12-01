@@ -3,8 +3,10 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
 import MDBadge from "../../../../../components/MDBadge";
+import MDButton from "../../../../../components/MDButton";
+import React from "react";
 
-export default function data(passing) {
+export default function data(passing, handleSendRemind) {
 
   const Author = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
@@ -20,13 +22,13 @@ export default function data(passing) {
 
   return {
     columns: [
-      { Header: "Оценивает", accessor: "evaluator", width: "45%", align: "left" },
+      { Header: "Оценивает", accessor: "evaluator", width: "10%", align: "left" },
       { Header: "Будет оценён", accessor: "evaluated", width: "10%", align: "left" },
       { Header: "Прохождение", accessor: "isPass", align: "center" },
       { Header: "Связь", accessor: "evaluatorType", align: "center" },
+      { Header: "Напомнить", accessor: "remind", align: "center"}
     ],
-
-    rows: passing?.map(({ evaluatedPerson, isPass, evaluator, evaluatorType }, index) => {
+    rows: passing?.map(({ id, evaluatedPerson, isPass, evaluator, evaluatorType }, index) => {
       return {
         evaluator:
           <Author
@@ -57,6 +59,15 @@ export default function data(passing) {
               "Подчинённый"}
           </MDBox>
         ),
+        remind: !isPass && (
+          <MDButton
+            color="primary"
+            variant="contained"
+            onClick={() => handleSendRemind(id)}
+          >
+            Отправить
+          </MDButton>
+        )
       };
     }),
 

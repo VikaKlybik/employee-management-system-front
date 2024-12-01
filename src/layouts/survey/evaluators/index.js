@@ -134,6 +134,7 @@ function SurveyEvaluators() {
             };
           }),
         });
+        surveyService.sendNotifyMessage(id)
         console.log(response);
         navigate("/survey");
       } catch (error) {
