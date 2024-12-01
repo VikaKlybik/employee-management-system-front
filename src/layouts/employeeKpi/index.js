@@ -32,6 +32,27 @@ function EmployeeKPITables() {
       navigate(`/my-kpi/assessment/${item.kpi_id}`);
     }
   };
+
+  const handleDownloadKPI = async () => {
+    try {
+      const user = authContext.getUser();
+      const employeeData = await employeeService.getEmployeeById(user.id);
+      const response = await kpiService.getReportForUser(employeeData.data.id, {
+        kpiPeriodId: selectedKpiPeriod
+      })
+      const link = document.createElement('a');
+      const url = window.URL.createObjectURL(response.data);
+      link.href = url;
+      link.download = 'reportKpi.xlsx';  // Укажите имя файла и его расширение
+      link.click();
+
+      // Освобождаем ресурсы
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   const isModalOpen = location.pathname.includes("/my-kpi/assessment/");
 
   useEffect(() => {
@@ -53,6 +74,10 @@ function EmployeeKPITables() {
     }
   }, [selectedKpiPeriod]);
 
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("ru-RU"); // en-GB sets the format to DD/MM/YYYY
+  };
+
   useEffect(() => {
     async function fetchKPIPeriods() {
       try {
@@ -61,7 +86,7 @@ function EmployeeKPITables() {
         setKpiPeriods(response.data.map(({ id, startDate, endDate }) => {
           return {
             value: id,
-            name: `${startDate.toLocaleString()} - ${endDate.toLocaleString()}`,
+            name: `${formatDate(startDate)} - ${formatDate(endDate)}`,
           };
         }));
       } catch (error) {
@@ -109,7 +134,7 @@ function EmployeeKPITables() {
                     handleOptionChange={setSelectedKpiPeriod}
                   />
                 }
-                <MDButton color="primary" variant="contained">
+                <MDButton color="primary" variant="contained" disabled={kpiList?.length === 0} onClick={handleDownloadKPI}>
                   Выгрузить отчёт
                 </MDButton>
               </MDBox>

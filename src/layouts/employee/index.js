@@ -8,12 +8,15 @@ import MDTypography from "components/MDTypography";
 import DataTable from "examples/Tables/DataTable";
 import EmployeeService from "services/EmployeeService";
 import employeeTableData from "layouts/tables/data/employeeTableData";
+import CreateEmployeeDialog from "../../examples/Modal/CreateEmployeeDialog";
+import MDButton from "../../components/MDButton";
 
 
 function EmployeeTables() {
   const employeeService = new EmployeeService();
   const [employees, setEmployees] = useState(null);
   const [tableData, setTableData] = useState({ columns: [], rows: [] });
+  const [isCreateEmployeeOpen, setIsCreateEmployeeOpen] = useState(false);
 
   useEffect(() => {
     async function fetchAllEmployee() {
@@ -37,6 +40,27 @@ function EmployeeTables() {
     }
   }, [employees]);
 
+  const handleCreateEmployee = (data) => {
+    async function createEmployee() {
+      try {
+        const response = await employeeService.createEmployee({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          password: data.password,
+          role: "employee",
+          jobTittleId: data.position,
+        });
+        const employeeData = await employeeService.getEmployeeById(response.data.id);
+        setEmployees([...employees, employeeData.data]);
+        setIsCreateEmployeeOpen(false);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    createEmployee();
+  };
 
 
   return (
@@ -55,10 +79,16 @@ function EmployeeTables() {
                 bgColor="info"
                 borderRadius="lg"
                 coloredShadow="info"
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
               >
                 <MDTypography variant="h6" color="white">
                   Наши сотрудники
                 </MDTypography>
+                <MDButton color="primary" variant="contained" onClick={() => setIsCreateEmployeeOpen(true)}>
+                  Добавить нового сотрудника
+                </MDButton>
               </MDBox>
               <MDBox pt={3}>
                 <DataTable
@@ -73,6 +103,11 @@ function EmployeeTables() {
           </Grid>
         </Grid>
       </MDBox>
+      <CreateEmployeeDialog
+        isModalOpen={isCreateEmployeeOpen}
+        handleCreateEmployee={handleCreateEmployee}
+        closeModal={() => setIsCreateEmployeeOpen(false)}
+      />
     </DashboardLayout>
   );
 }

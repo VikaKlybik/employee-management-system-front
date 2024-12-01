@@ -40,7 +40,6 @@ import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 
 // @mui icons
-import Icon from "@mui/material/Icon";
 import Employee from "./layouts/employee";
 import EmployeeKpi from "./layouts/employeeKpi";
 import Logout from "./layouts/logout";
@@ -52,8 +51,8 @@ import KpiAssessmentModal from "./examples/Modal/KpiAssesmentDialog";
 import SurveyStats from "./layouts/survey/stats";
 import EmployeeKPITables from "./layouts/employeeKpiAsAdmin";
 import KpiAssessmentModalAsAdmin from "./examples/Modal/KpiAssesmentDialogAsAdmin";
-import CreateDevelopmentPlanForEmployeeModal
-  from "./layouts/developmentPlan/createForEmployee/CreateDevelopmentPlanForEmployeeModal";
+import EmployeeResultSurveyList from "./layouts/survey/result";
+import SurveyOverviewForEmployee from "./layouts/survey/statsForEmployee";
 
 const routes = [
   // {
@@ -103,9 +102,9 @@ const routes = [
         route: "/kpi/for-employee/:id/assessment/:kpiId",
         component: <KpiAssessmentModalAsAdmin />,
         redirect: "/employee",
-        role: ["admin", "manager"]
+        role: ["admin", "manager"],
       },
-    ]
+    ],
   },
   {
     type: "collapse",
@@ -122,9 +121,9 @@ const routes = [
         route: "/my-kpi/assessment/:id",
         component: <KpiAssessmentModal />,
         redirect: "/profile",
-        role: ["employee"]
+        role: ["employee"],
       },
-    ]
+    ],
   },
   {
     type: "collapse",
@@ -201,7 +200,16 @@ const routes = [
     name: "Результаты опросов",
     key: "survey-create",
     route: "/survey-result",
-    component: <SurveyCreate />,
+    component: <EmployeeResultSurveyList />,
+    role: ["employee"],
+    redirect: "/profile",
+  },
+  {
+    type: "route",
+    name: "Результаты опроса",
+    key: "survey-create",
+    route: "/survey-result/:id",
+    component: <SurveyOverviewForEmployee />,
     role: ["employee"],
     redirect: "/profile",
   },
@@ -213,7 +221,7 @@ const routes = [
     component: <Logout />,
     role: ["admin", "employee", "manager"],
     redirect: "/profile",
-  }
+  },
   // {
   //   type: "collapse",
   //   name: "Sign Up",
