@@ -6,6 +6,10 @@ class SurveyService {
     return ApiService.get(`/survey`, filterParam);
   }
 
+  async getSurveyForEmployee(id) {
+    return ApiService.get(`/survey/result/for-employee/${id}`);
+  }
+
   async compositeCreateSurvey(data) {
     return ApiService.post("/survey/create/composite", data);
   }

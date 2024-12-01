@@ -51,6 +51,10 @@ function EmployeeKPITables() {
     }
   }, [id, selectedKpiPeriod]);
 
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("ru-RU"); // en-GB sets the format to DD/MM/YYYY
+  };
+
   useEffect(() => {
     async function fetchKPIPeriods() {
       try {
@@ -59,7 +63,7 @@ function EmployeeKPITables() {
         setKpiPeriods(response.data.map(({ id, startDate, endDate }) => {
           return {
             value: id,
-            name: `${startDate.toLocaleString()} - ${endDate.toLocaleString()}`,
+            name: `${formatDate(startDate)} - ${formatDate(endDate)}`,
           };
         }));
       } catch (error) {
