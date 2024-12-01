@@ -12,17 +12,27 @@ import DataTable from "examples/Tables/DataTable";
 
 // Data
 import data from "layouts/dashboard/components/Passing/data";
+import SurveyService from "../../../../services/SurveyService";
 
 function PassingList({ passing }) {
   const [tableData, setTableData] = useState({ columns: [], rows: [] });
-
+  const surveyService = new SurveyService();
   useEffect(() => {
     if (passing) {
-      const myTableData = data(passing);
+      const myTableData = data(passing, handleSendRemind);
       console.log("Generated table data:", myTableData); // Debug log
       setTableData(myTableData);
     }
   }, [passing]);
+
+  const handleSendRemind = async (id) => {
+    try {
+      await surveyService.sendRemindMessage(id);
+
+    } catch (error) {
+
+    }
+  };
 
   return (
     <Card>
