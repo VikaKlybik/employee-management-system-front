@@ -38,7 +38,7 @@ export default styled(LinearProgress)(({ theme, ownerState }) => {
   return {
     "& .MuiLinearProgress-bar": {
       background: backgroundValue,
-      width: `${value}%`,
+      width: `${value>100? 100 :value}%`,
       color: text.main,
     },
   };

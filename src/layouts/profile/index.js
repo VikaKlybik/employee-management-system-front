@@ -19,15 +19,11 @@ import Header from "layouts/profile/components/Header";
 
 // Data
 // Images
-import homeDecor1 from "assets/images/home-decor-1.jpg";
-import team1 from "assets/images/team-1.jpg";
-import team2 from "assets/images/team-2.jpg";
-import team3 from "assets/images/team-3.jpg";
-import team4 from "assets/images/team-4.jpg";
 import { useAuth } from "../../context/AuthContext";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import EmployeeService from "../../services/EmployeeService";
 import SurveyService from "../../services/SurveyService";
+import MDSnackbar from "../../components/MDSnackbar";
 
 function Overview() {
   const [employee, setEmployee] = useState(null);
@@ -36,6 +32,38 @@ function Overview() {
   const authContext = useAuth();
   const employeeService = new EmployeeService();
   const surveyService = new SurveyService();
+  const [successSB, setSuccessSB] = useState(false);
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = () => setErrorSB(true);
+  const closeErrorSB = () => setErrorSB(false);
+  const openSuccessSB = () => setSuccessSB(true);
+  const closeSuccessSB = () => setSuccessSB(false);
+  const [message, setMessage] = useState("");
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title="Инфорамация"
+      content={message}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite
+    />
+  );
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title="Ошибка"
+      content={message}
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
 
   useEffect(() => {
     const user = authContext.getUser();
@@ -76,6 +104,26 @@ function Overview() {
     fetchAvailableSurveyToPass();
   }, []);
 
+  const handleChangeAvatar = async (event) => {
+    const file = event.target.files[0];
+
+    if (!file) return; // Если файл не выбран
+
+    const formData = new FormData();
+    formData.append("file", file);
+    const user = authContext.getUser();
+    try {
+      await employeeService.uploadPhoto(user.id, formData);
+      const response = await employeeService.getEmployeeById(user.id);
+      setEmployee(response.data);
+      setMessage("Аватарка успешно изменена!")
+      openSuccessSB()
+    } catch (error) {
+      setMessage("Ошибка смены аватарки! Попробуйте позже.")
+      openErrorSB()
+    }
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -86,7 +134,9 @@ function Overview() {
           title: `${employee?.department?.name} / ${employee?.jobTitle?.name}`,
           profilePhotoUrl: employee?.user?.profilePhotoUrl,
         }
-      }>
+      }
+        handleChangeAvatar={handleChangeAvatar}
+      >
         <MDBox mt={5} mb={3}>
           <Grid container spacing={1}>
             <Grid item xs={12} xl={6} sx={{ display: "flex" }}>
@@ -99,7 +149,6 @@ function Overview() {
                   department: `${employee?.department?.name}`,
                   jobTitle: `${employee?.jobTitle?.name}`,
                 }}
-                action={{ route: "", tooltip: "Редактировать" }}
                 shadow={false}
               />
               <Divider orientation="vertical" sx={{ mx: 0 }} />
@@ -126,8 +175,8 @@ function Overview() {
                 <DefaultProjectCard
                   image={passing.evaluatedPerson.user.profilePhotoUrl}
                   label={passing.survey.name}
-                  title={passing.evaluatedPerson.user.lastName + ' ' +passing.evaluatedPerson.user.firstName}
-                  description={passing.evaluatedPerson.department.name + ', ' + passing.evaluatedPerson.jobTitle.name}
+                  title={passing.evaluatedPerson.user.lastName + " " + passing.evaluatedPerson.user.firstName}
+                  description={passing.evaluatedPerson.department.name + ", " + passing.evaluatedPerson.jobTitle.name}
                   action={{
                     type: "internal",
                     route: `/survey/${passing.id}`,
@@ -137,6 +186,8 @@ function Overview() {
                 />
               </Grid>
             ))}
+            {renderErrorSB}
+            {renderSuccessSB}
           < /Grid>
         </MDBox>
       </Header>
