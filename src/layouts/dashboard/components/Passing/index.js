@@ -13,6 +13,7 @@ import DataTable from "examples/Tables/DataTable";
 // Data
 import data from "layouts/dashboard/components/Passing/data";
 import SurveyService from "../../../../services/SurveyService";
+import MDSnackbar from "../../../../components/MDSnackbar";
 
 function PassingList({ passing }) {
   const [tableData, setTableData] = useState({ columns: [], rows: [] });
@@ -24,13 +25,47 @@ function PassingList({ passing }) {
       setTableData(myTableData);
     }
   }, [passing]);
+  const [successSB, setSuccessSB] = useState(false);
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = () => setErrorSB(true);
+  const closeErrorSB = () => setErrorSB(false);
+  const openSuccessSB = () => setSuccessSB(true);
+  const closeSuccessSB = () => setSuccessSB(false);
+  const [message, setMessage] = useState("");
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title="Инфорамация"
+      content={message}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite
+    />
+  );
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title="Ошибка"
+      content={message}
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
 
   const handleSendRemind = async (id) => {
     try {
       await surveyService.sendRemindMessage(id);
-
+      setMessage("Сообщение отправлено!")
+      openSuccessSB();
     } catch (error) {
-
+      setMessage("Попробуйти позже или обратитесь в поддержку!")
+      openErrorSB()
     }
   };
 
@@ -52,6 +87,8 @@ function PassingList({ passing }) {
           entriesPerPage={false}
         />
       </MDBox>
+      {renderSuccessSB}
+      {renderErrorSB}
     </Card>
   );
 }

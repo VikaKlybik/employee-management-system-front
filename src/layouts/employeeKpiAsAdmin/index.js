@@ -13,6 +13,8 @@ import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import KpiAssessmentModalAsAdmin from "../../examples/Modal/KpiAssesmentDialogAsAdmin";
 import { ArrowSelect } from "../../examples/ArrowSelect";
 import KPICreationDialog from "../../examples/Modal/KPICreationDialog";
+import MDSnackbar from "../../components/MDSnackbar";
+import { useAuth } from "../../context/AuthContext";
 
 function EmployeeKPITables() {
   const kpiService = new KPIService();
@@ -32,6 +34,41 @@ function EmployeeKPITables() {
     }
   };
   const isModalOpen = location.pathname.includes(`/kpi/for-employee/${id}/assessment/`);
+
+  const [successSB, setSuccessSB] = useState(false);
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = () => setErrorSB(true);
+  const closeErrorSB = () => setErrorSB(false);
+  const openSuccessSB = () => setSuccessSB(true);
+  const closeSuccessSB = () => setSuccessSB(false);
+  const [message, setMessage] = useState("");
+  const auth = useAuth();
+  const user = auth.getUser();
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title="Инфорамация"
+      content={message}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite
+    />
+  );
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title="Ошибка"
+      content={message}
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
 
   useEffect(() => {
     async function fetchAllEmployeeKpi() {
@@ -90,14 +127,24 @@ function EmployeeKPITables() {
             return {
               ...item,
               employeeId: id,
-              kpiPeriodId: selectedKpiPeriod
-            }
+              kpiPeriodId: selectedKpiPeriod,
+            };
           }),
         );
-        setKpiList(response.data);
+        const responseKPI = await kpiService.getKPIPeriods();
+        setKpiPeriods(response.data.map(({ id, startDate, endDate }) => {
+          return {
+            value: id,
+            name: `${formatDate(startDate)} - ${formatDate(endDate)}`,
+          };
+        }));
+        setKpiList(responseKPI.data);
         setIsKPICreationDialogOpen(false);
+        setMessage("KPI успешно выставлены!");
+        openSuccessSB();
       } catch (error) {
-        console.log(error);
+        setMessage("Попробуйти позже или обратитесь в поддержку!");
+        openErrorSB();
       }
     }
 
@@ -107,20 +154,23 @@ function EmployeeKPITables() {
   const handleDownloadKPI = async () => {
     try {
       const response = await kpiService.getReportForUser(id, {
-        kpiPeriodId: selectedKpiPeriod
-      })
-      const link = document.createElement('a');
+        kpiPeriodId: selectedKpiPeriod,
+      });
+      const link = document.createElement("a");
       const url = window.URL.createObjectURL(response.data);
       link.href = url;
-      link.download = 'reportKpi.xlsx';  // Укажите имя файла и его расширение
+      link.download = "reportKpi.xlsx";  // Укажите имя файла и его расширение
       link.click();
 
       // Освобождаем ресурсы
       window.URL.revokeObjectURL(url);
+      setMessage("Отчёт отобразиться в скаченных файлах!");
+      openSuccessSB();
     } catch (error) {
-      console.log(error);
+      setMessage("Попробуйти позже или обратитесь в поддержку!");
+      openErrorSB();
     }
-  }
+  };
 
   return (
     <DashboardLayout>
@@ -152,11 +202,14 @@ function EmployeeKPITables() {
                   />
                 }
                 <MDBox>
-                  <MDButton sx={{ mx: "2px" }} color="success" disabled={kpiList?.length !== 0} variant="contained"
-                            onClick={() => setIsKPICreationDialogOpen(true)}>
-                    Выставить KPI
-                  </MDButton>
-                  <MDButton sx={{ mx: "2px" }} color="primary" disabled={kpiList?.length === 0} variant="contained" onClick={handleDownloadKPI}>
+                  {user.role === "admin" && (
+                    <MDButton sx={{ mx: "2px" }} color="success" disabled={kpiList?.length !== 0} variant="contained"
+                              onClick={() => setIsKPICreationDialogOpen(true)}>
+                      Выставить KPI
+                    </MDButton>
+                  )}
+                  <MDButton sx={{ mx: "2px" }} color="primary" disabled={kpiList?.length === 0} variant="contained"
+                            onClick={handleDownloadKPI}>
                     Выгрузить отчёт
                   </MDButton>
                 </MDBox>
@@ -175,6 +228,8 @@ function EmployeeKPITables() {
         </Grid>
       </MDBox>
       <Outlet />
+      {renderErrorSB}
+      {renderSuccessSB}
       <KpiAssessmentModalAsAdmin
         isModalOpen={isModalOpen} />
       <KPICreationDialog

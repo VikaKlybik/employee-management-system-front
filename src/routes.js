@@ -53,6 +53,8 @@ import EmployeeKPITables from "./layouts/employeeKpiAsAdmin";
 import KpiAssessmentModalAsAdmin from "./examples/Modal/KpiAssesmentDialogAsAdmin";
 import EmployeeResultSurveyList from "./layouts/survey/result";
 import SurveyOverviewForEmployee from "./layouts/survey/statsForEmployee";
+import ChangePassword from "./layouts/authentication/update-password";
+import NotFound from "./layouts/notFound";
 
 const routes = [
   // {
@@ -136,6 +138,15 @@ const routes = [
   {
     type: "route",
     name: "Sign In",
+    key: "not-found",
+    route: "/not-found",
+    component: <NotFound />,
+    redirect: "/profile",
+    role: ["admin", "employee", "manager"],
+  },
+  {
+    type: "route",
+    name: "Sign In",
     key: "sign-in",
     route: "/login",
     component: <SignIn />,
@@ -147,7 +158,7 @@ const routes = [
     key: "employees",
     route: "/employee",
     component: <Employee />,
-    role: ["admin"],
+    role: ["admin", "manager"],
     redirect: "/profile",
   },
   {
@@ -156,7 +167,7 @@ const routes = [
     key: "survey-evaluators",
     route: "/survey/:id/evaluators",
     component: <SurveyEvaluators />,
-    role: ["admin", "manager"],
+    role: ["admin"],
     redirect: "/survey",
   },
   {
@@ -192,7 +203,7 @@ const routes = [
     key: "survey-create",
     route: "/survey-create",
     component: <SurveyCreate />,
-    role: ["admin", "manager"],
+    role: ["admin"],
     redirect: "/profile",
   },
   {
@@ -219,6 +230,15 @@ const routes = [
     key: "logout",
     route: "/logout",
     component: <Logout />,
+    role: ["admin", "employee", "manager"],
+    redirect: "/profile",
+  },
+  {
+    type: "route",
+    name: "Изменить пароль",
+    key: "change-password",
+    route: "/change-password",
+    component: <ChangePassword />,
     role: ["admin", "employee", "manager"],
     redirect: "/profile",
   },

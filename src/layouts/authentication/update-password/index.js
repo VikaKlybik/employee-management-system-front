@@ -18,21 +18,16 @@ import bgImage from "assets/images/bg-sign-in-basic.webp";
 import { useForm } from "react-hook-form";
 import { useAuth } from "context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import MDSnackbar from "../../../components/MDSnackbar";
-import { useState } from "react";
 
-function Basic() {
+function ChangePassword() {
   const authService = new AuthService();
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const authContext = useAuth();
   const navigate = useNavigate();
-  const [error, setError] = useState(false);
-  const openError = () => setError(true);
-  const closeError = () => setError(false);
-
-  const enterUser = async (data) => {
+  const updatePassword = async (data) => {
     try {
-      const response = await authService.login(data.email, data.password);
+      const user = authContext.getUser();
+      const response = await authService.updatePassword(user.email, data.password);
       authContext.login(response.data.token);
       if (response.data.token.role === "employee") {
         navigate("/profile");
@@ -40,24 +35,9 @@ function Basic() {
         navigate("/employee");
       }
     } catch (error) {
-      openError(error)
+      console.log(error);
     }
   };
-
-  const renderError = (
-    <MDSnackbar
-      color="error"
-      icon="warning"
-      title="Ошибка авторизации"
-      content="Логин или пароль указаны неверно!"
-      dateTime=""
-      open={error}
-      onClose={closeError}
-      close={closeError}
-      bgWhite
-    />
-  );
-
   return (
     <BasicLayout image={bgImage}>
       <Card>
@@ -73,27 +53,11 @@ function Basic() {
           textAlign="center"
         >
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-            Авторизация
+            Сменить пароль
           </MDTypography>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
-          <MDBox component="form" role="form" onSubmit={handleSubmit(enterUser)}>
-            <MDBox mb={2}>
-              <MDInput
-                type="email"
-                label="Email"
-                fullWidth
-                {...register("email", {
-                  required: "Email не указан!.",
-                  pattern: {
-                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                    message: "Неправильный формат",
-                  },
-                })}
-                error={Boolean(errors.email)}
-                helperText={errors.email ? <span style={{ color: "red" }}>{errors.email.message}</span> : ""}
-              />
-            </MDBox>
+          <MDBox component="form" role="form" onSubmit={handleSubmit(updatePassword)}>
             <MDBox mb={2}>
               <MDInput
                 type="password"
@@ -111,7 +75,6 @@ function Basic() {
                 Вход
               </MDButton>
             </MDBox>
-            {renderError}
           </MDBox>
         </MDBox>
       </Card>
@@ -119,4 +82,4 @@ function Basic() {
   );
 }
 
-export default Basic;
+export default ChangePassword;

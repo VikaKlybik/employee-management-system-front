@@ -7,5 +7,11 @@ class AuthService {
       password: password
     });
   }
+  async updatePassword(email, password) {
+    return ApiService.post("/auth/update-password", {
+      email: email,
+      newPassword: password
+    });
+  }
 }
 export default AuthService;
