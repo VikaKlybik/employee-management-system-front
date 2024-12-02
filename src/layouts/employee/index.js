@@ -10,6 +10,12 @@ import EmployeeService from "services/EmployeeService";
 import employeeTableData from "layouts/tables/data/employeeTableData";
 import CreateEmployeeDialog from "../../examples/Modal/CreateEmployeeDialog";
 import MDButton from "../../components/MDButton";
+import UpdateEmployeeDialog from "../../examples/Modal/UpdateEmployeeDialog";
+import MDSnackbar from "../../components/MDSnackbar";
+import EmployeeFilterDialog from "../../examples/Modal/EmployeeFilterDialog";
+import ClearIcon from "@mui/icons-material/Clear";
+import IconButton from "@mui/material/IconButton";
+import { useAuth } from "../../context/AuthContext";
 
 
 function EmployeeTables() {
@@ -17,11 +23,53 @@ function EmployeeTables() {
   const [employees, setEmployees] = useState(null);
   const [tableData, setTableData] = useState({ columns: [], rows: [] });
   const [isCreateEmployeeOpen, setIsCreateEmployeeOpen] = useState(false);
+  const [isUpdateEmployeeOpen, setIsUpdateEmployeeOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [successSB, setSuccessSB] = useState(false);
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = () => setErrorSB(true);
+  const closeErrorSB = () => setErrorSB(false);
+  const openSuccessSB = () => setSuccessSB(true);
+  const closeSuccessSB = () => setSuccessSB(false);
+  const [isFilterEmployeeOpen, setIsFilterEmployeeOpen] = useState(false);
+  const auth = useAuth();
+  const user = auth.getUser();
+  const [searchParam, setSearchParam] = useState({
+    search: null,
+    departmentId: null,
+    jobTitleId: null,
+  });
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title="Инфорамация"
+      content="Данные о сотруднике успешно сохранены!"
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite
+    />
+  );
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title="Ошибка"
+      content="Пользователь с такой почтой уже существует!"
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
+
 
   useEffect(() => {
     async function fetchAllEmployee() {
       try {
-        const response = await employeeService.getEmployee({});
+        const response = await employeeService.getEmployee(searchParam);
         console.log("Fetched employees data:", response.data); // Debug log
         setEmployees(response.data);
       } catch (error) {
@@ -30,15 +78,48 @@ function EmployeeTables() {
     }
 
     fetchAllEmployee();
-  }, []);
+  }, [searchParam]);
 
   useEffect(() => {
     if (employees) {
-      const myTableData = employeeTableData(employees);
+      const myTableData = employeeTableData(employees, handleSelectEmployee);
       console.log("Generated table data:", myTableData); // Debug log
       setTableData(myTableData);
     }
   }, [employees]);
+  const handleUpdateEmployee = (data) => {
+    async function updateEmployee() {
+      try {
+        const response = await employeeService.updateEmployee(selectedEmployee.user.id, {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          jobTitleId: data.position,
+        });
+        const responseEmployee = await employeeService.getEmployee({});
+        setEmployees(responseEmployee.data);
+        setIsUpdateEmployeeOpen(false);
+        openSuccessSB();
+      } catch (error) {
+        openErrorSB();
+      }
+    }
+
+    updateEmployee();
+  };
+
+  const handleSelectEmployee = (selectedId) => {
+    setSelectedEmployee(employees.filter(({ id }) => id === selectedId)[0]);
+    setIsUpdateEmployeeOpen(true);
+  };
+
+  const resetFilter = () => {
+    setSearchParam({
+      search: null,
+      departmentId: null,
+      jobTitleId: null,
+    });
+  };
 
   const handleCreateEmployee = (data) => {
     async function createEmployee() {
@@ -49,13 +130,15 @@ function EmployeeTables() {
           email: data.email,
           password: data.password,
           role: "employee",
-          jobTittleId: data.position,
+          jobTitleId: data.position,
         });
         const employeeData = await employeeService.getEmployeeById(response.data.id);
         setEmployees([...employees, employeeData.data]);
         setIsCreateEmployeeOpen(false);
+        setSelectedEmployee(null);
+        openSuccessSB();
       } catch (error) {
-        console.log(error);
+        openErrorSB();
       }
     }
 
@@ -86,9 +169,30 @@ function EmployeeTables() {
                 <MDTypography variant="h6" color="white">
                   Наши сотрудники
                 </MDTypography>
-                <MDButton color="primary" variant="contained" onClick={() => setIsCreateEmployeeOpen(true)}>
-                  Добавить нового сотрудника
-                </MDButton>
+                <MDBox sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
+                  <MDButton color="success" variant="contained" onClick={() => setIsFilterEmployeeOpen(true)}>
+                    Фильтровать
+                  </MDButton>
+                  {(searchParam.departmentId || searchParam.search || searchParam.jobTitleId) && (
+                    <IconButton
+                      onClick={resetFilter}
+                      sx={{
+                        color: "primary.main", // Цвет иконки (можно настроить)
+                        backgroundColor: "transparent", // Без фона
+                        "&:hover": {
+                          backgroundColor: "rgba(0, 0, 0, 0.04)", // Лёгкий фон при наведении (можно убрать)
+                        },
+                      }}
+                    >
+                      <ClearIcon />
+                    </IconButton>
+                  )}
+                  {user.role === "admin" && (
+                    <MDButton color="primary" variant="contained" onClick={() => setIsCreateEmployeeOpen(true)}>
+                      Добавить нового сотрудника
+                    </MDButton>
+                  )}
+                </MDBox>
               </MDBox>
               <MDBox pt={3}>
                 <DataTable
@@ -103,11 +207,31 @@ function EmployeeTables() {
           </Grid>
         </Grid>
       </MDBox>
+      {renderErrorSB}
+      {renderSuccessSB}
       <CreateEmployeeDialog
         isModalOpen={isCreateEmployeeOpen}
         handleCreateEmployee={handleCreateEmployee}
         closeModal={() => setIsCreateEmployeeOpen(false)}
       />
+      <EmployeeFilterDialog
+        open={isFilterEmployeeOpen}
+        onClose={() => setIsFilterEmployeeOpen(false)}
+        searchParam={searchParam}
+        setSearchParam={setSearchParam}
+        resetFilter={resetFilter}
+      />
+      {selectedEmployee && (
+        <UpdateEmployeeDialog
+          isModalOpen={isUpdateEmployeeOpen}
+          handleUpdateEmployee={handleUpdateEmployee}
+          closeModal={() => {
+            setIsUpdateEmployeeOpen(false);
+            setSelectedEmployee(null);
+          }}
+          employeeData={selectedEmployee}
+        />
+      )}
     </DashboardLayout>
   );
 }

@@ -15,12 +15,45 @@ import SurveyTableForEmployee from "./components/SurveyTableForEmployee";
 import SurveyService from "../../../../services/SurveyService";
 import SurveyChartForEmployee from "./components/SurveyChartForEmployee";
 import MDButton from "../../../../components/MDButton";
+import MDSnackbar from "../../../../components/MDSnackbar";
 
 function SurveyStatsForEmployee({ passing, surveyId, handleDevelopmentPlanDialogOpen, selectedUserId, setSelectedUserId }) {
   const [type, setType] = useState(null);
   const [assessments, setAssessments] = useState([]);
   const surveyService = new SurveyService();
   const [evaluatedUsers, setEvaluatedUsers] = useState([]);
+  const [successSB, setSuccessSB] = useState(false);
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = () => setErrorSB(true);
+  const closeErrorSB = () => setErrorSB(false);
+  const openSuccessSB = () => setSuccessSB(true);
+  const closeSuccessSB = () => setSuccessSB(false);
+  const [message, setMessage] = useState("");
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title="Инфорамация"
+      content={message}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite
+    />
+  );
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title="Ошибка"
+      content={message}
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
 
   useEffect(() => {
     if (passing && passing.length !== 0) {
@@ -77,8 +110,11 @@ function SurveyStatsForEmployee({ passing, surveyId, handleDevelopmentPlanDialog
 
       // Освобождаем ресурсы
       window.URL.revokeObjectURL(url);
+      setMessage("Отчёт отобразиться в скаченных файлах!")
+      openSuccessSB()
     } catch (error) {
-      console.log(error);
+      setMessage("Попробуйти позже или обратитесь в поддержку!")
+      openErrorSB()
     }
   }
 
@@ -197,6 +233,8 @@ function SurveyStatsForEmployee({ passing, surveyId, handleDevelopmentPlanDialog
             )}
           </>
         )}
+        {renderErrorSB}
+        {renderSuccessSB}
       </MDBox>
     </Card>
   );

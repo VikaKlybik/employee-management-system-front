@@ -7,7 +7,7 @@ import DropdownMenu from "../../../components/DropDownMenu";
 import MDBadge from "../../../components/MDBadge";
 import TableUtils from "./utlis";
 
-export default function SurveyListTableData(surveys, handleMenuItemClick) {
+export default function SurveyListTableData(surveys, handleMenuItemClick, role) {
   // eslint-disable-next-line react/prop-types
   const SurveyName = ({ name }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
@@ -71,9 +71,12 @@ export default function SurveyListTableData(surveys, handleMenuItemClick) {
     ],
 
     rows: surveys?.map(({ id, name, description, evaluationMethod, status, createdAt }, index) => {
-      const surveyMenuItems = status === "DRAFT" ? draftMenuItems
-          : status === "PUBLISHED" ? startedMenuItems
-          : closedMenuItems;
+      const surveyMenuItems = status === "DRAFT" && role === 'admin' ? draftMenuItems
+          : status === "PUBLISHED" && role === 'admin' ? startedMenuItems
+          : status === "CLOSED" && role === 'admin'? closedMenuItems
+          : status === "DRAFT" && role === 'manager'? []
+          : (status === "PUBLISHED" || status === "CLOSED") && role === 'manager'? [{ label: "Статистика", action: "view-stats" }]
+          : [];
       return {
         name: (
           <SurveyName

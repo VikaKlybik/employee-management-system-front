@@ -7,7 +7,7 @@ import MDBadge from "components/MDBadge";
 // Images
 import team2 from "assets/images/team-2.jpg";
 
-export default function EmployeeTableData( employees ) {
+export default function EmployeeTableData( employees, handleSelectedEmployee ) {
   // eslint-disable-next-line react/prop-types
   const Author = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
@@ -64,7 +64,7 @@ export default function EmployeeTableData( employees ) {
           </MDTypography>
         ),
         action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+          <MDTypography component="button" variant="caption" color="text" fontWeight="medium" onClick={()=> handleSelectedEmployee(id)}>
             Редактировать
           </MDTypography>
         ),

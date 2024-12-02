@@ -11,7 +11,7 @@ function ProfilesList({ title, profiles, shadow }) {
   const renderProfiles = profiles?.map(({ user, department, jobTitle }) => (
     <MDBox key={`${user?.lastName} ${user?.firstName}`} component="li" display="flex" alignItems="center" py={1} mb={1}>
       <MDBox mr={2}>
-        <MDAvatar src={team4} alt="something here" shadow="md" />
+        <MDAvatar src={user?.profilePhotoUrl} alt="something here" shadow="md" />
       </MDBox>
       <MDBox display="flex" flexDirection="column" alignItems="flex-start" justifyContent="center">
         <MDTypography variant="button" fontWeight="medium">

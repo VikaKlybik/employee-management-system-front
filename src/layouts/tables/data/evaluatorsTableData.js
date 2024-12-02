@@ -13,7 +13,10 @@ export default function data(evaluators, handleDeleteRow, handleDialogOpen, hand
     return { columns: [], rows: [] }; // Ensure a valid return structure
   }
   const Evaluator = ({ name, departmentJobTitle, onDelete }) => (
-    <MDBox display="flex" alignItems="center" lineHeight={1} padding={1} border={1} borderColor="grey.300"
+    <MDBox display="flex"  alignItems="center" lineHeight={1} padding={1} border={1} borderColor="grey.300" flex="1 1 calc(50% - 8px)"
+           margin="4px"
+           padding="8px"
+           bgcolor="#f0f0f0"
            borderRadius={2} mr={2} mb={2}>
       <MDBox ml={2} lineHeight={1} flexGrow={1}>
         <MDTypography display="block" variant="button" fontWeight="medium">
@@ -40,7 +43,7 @@ export default function data(evaluators, handleDeleteRow, handleDialogOpen, hand
   return {
     columns: [
       { Header: "Оцениваемый сотрудник", accessor: "evaluated", width: "40%", align: "left" },
-      { Header: "Оценщики", width: "40%", accessor: "evaluators", align: "center" },
+      { Header: "Оценщики", width: "30%", accessor: "evaluators", align: "center", maxWidth: "30%"},
       { Header: "Дейстивия", accessor: "action", align: "center" },
     ],
 

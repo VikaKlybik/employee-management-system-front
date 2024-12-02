@@ -9,12 +9,48 @@ import DataTable from "examples/Tables/DataTable";
 import surveyListTableData from "layouts/tables/data/surveyListTableData";
 import SurveyService from "../../../services/SurveyService";
 import { useNavigate } from "react-router-dom";
+import MDSnackbar from "../../../components/MDSnackbar";
+import { useAuth } from "../../../context/AuthContext";
 
 function SurveyList() {
   const surveyService = new SurveyService();
   const [surveys, setSurveys] = useState(null);
   const [tableData, setTableData] = useState({ columns: [], rows: [] });
   const navigate = useNavigate();
+  const [successSB, setSuccessSB] = useState(false);
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = () => setErrorSB(true);
+  const closeErrorSB = () => setErrorSB(false);
+  const openSuccessSB = () => setSuccessSB(true);
+  const closeSuccessSB = () => setSuccessSB(false);
+  const [message, setMessage] = useState("");
+  const auth = useAuth();
+  const user = auth.getUser();
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title="Инфорамация"
+      content={message}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite
+    />
+  );
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title="Ошибка"
+      content={message}
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
 
   async function fetchAllSurvey() {
     try {
@@ -31,11 +67,14 @@ function SurveyList() {
 
     async function duplicateSurvey(id) {
       try {
-        const response = await surveyService.duplicateSurvey(id);
+        await surveyService.duplicateSurvey(id);
         //TODO display modal or alert
         await fetchAllSurvey();
+        setMessage("Создан новый дубликат!")
+        openSuccessSB()
       } catch (error) {
-        console.log(error);
+        setMessage("Ошибка создания дубликата!")
+        openErrorSB()
       }
     }
 
@@ -43,8 +82,11 @@ function SurveyList() {
       try {
         await surveyService.closeSurvey(id);
         await fetchAllSurvey();
+        setMessage("Прохождение опроса завершено!")
+        openSuccessSB()
       } catch (error) {
-        console.log(error);
+        setMessage("Опрос уже был закрыт!")
+        openErrorSB()
       }
     }
 
@@ -73,11 +115,12 @@ function SurveyList() {
 
   useEffect(() => {
     if (surveys) {
-      const myTableData = surveyListTableData(surveys, handleMenuItemClick);
+      const myTableData = surveyListTableData(surveys, handleMenuItemClick, user.role);
       console.log("Generated table data:", myTableData); // Debug log
       setTableData(myTableData);
     }
   }, [surveys]);
+
 
   return (
     <DashboardLayout>
@@ -116,6 +159,8 @@ function SurveyList() {
           </Grid>
         </Grid>
       </MDBox>
+      {renderSuccessSB}
+      {renderErrorSB}
     </DashboardLayout>
   );
 }

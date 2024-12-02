@@ -18,7 +18,6 @@ import { useForm } from "react-hook-form";
 import DepartmentService from "../../../services/DepartmentService";
 
 export default function CreateEmployeeDialog({ isModalOpen, closeModal, handleCreateEmployee }) {
-  const navigate = useNavigate();
   const [departmentList, setDepartmentList] = useState([]);
   const departmentService = new DepartmentService();
 
@@ -102,6 +101,7 @@ export default function CreateEmployeeDialog({ isModalOpen, closeModal, handleCr
                   fullWidth
                   displayEmpty
                   margin="normal"
+                  value={watch("department") || ""}
                   style={{ paddingTop: "11px", paddingBottom: "11px", marginTop: "2px" }}
                   {...register("department", {
                     required: "Департамент не указан!",
@@ -120,12 +120,13 @@ export default function CreateEmployeeDialog({ isModalOpen, closeModal, handleCr
                 )}
               </FormControl>
               <FormControl fullWidth margin="normal" disabled={!department} error={Boolean(errors.position)}>
-                <InputLabel id="position">Позиция</InputLabel>
+                <InputLabel id="position_create">Позиция</InputLabel>
                 <Select
-                  labelId="position"
+                  labelId="position_create"
                   displayEmpty
                   fullWidth
                   sx={{ pt: 1.5, pb: 1.5, mt: 0.5 }}
+                  value={watch("position") || ""}
                   {...register("position", {
                     required: "Позиция не указана!",
                   })}
@@ -134,12 +135,13 @@ export default function CreateEmployeeDialog({ isModalOpen, closeModal, handleCr
                   {department &&
                     departmentList
                       ?.filter((item) => item.id === department)
-                      .at(0)
-                      ?.jobs?.map((job) => (
-                      <MenuItem key={job.id} value={job.id}>
-                        {job.name}
-                      </MenuItem>
-                    ))}
+                      .map((dept) =>
+                        dept.jobs?.map((job) => (
+                          <MenuItem key={job.id} value={job.id}>
+                            {job.name}
+                          </MenuItem>
+                        ))
+                      )}
                 </Select>
                 {errors.position && (
                   <FormHelperText error>
@@ -147,6 +149,7 @@ export default function CreateEmployeeDialog({ isModalOpen, closeModal, handleCr
                   </FormHelperText>
                 )}
               </FormControl>
+
               <MDButton
                 variant="contained"
                 color="primary"
