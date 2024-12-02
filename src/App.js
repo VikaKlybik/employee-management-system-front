@@ -37,8 +37,9 @@ import { setMiniSidenav, setOpenConfigurator, useMaterialUIController } from "co
 // Images
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
-import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import ProtectedRoute from "./components/Auth/ProtectedRoute";
 import { useAuth } from "./context/AuthContext";
+import PasswordCheck from "./components/Auth/PasswordCheck";
 
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
@@ -112,8 +113,8 @@ export default function App() {
           const navigateRoute = user.role === "employee" ? route.redirect : "/employee";
           return <Route key={route.key} path={route.route} element={<Navigate to={navigateRoute} replace />}>
             {route.child && route.child.map(child =>
-              <Route key={child.key} path={child.route}/>
-              )}
+              <Route key={child.key} path={child.route} />,
+            )}
           </Route>;
 
         }
@@ -123,9 +124,11 @@ export default function App() {
           <Route
             path={route.route}
             element={
-              <ProtectedRoute roles={route.role}>
-                {route.component}
-              </ProtectedRoute>
+              <PasswordCheck>
+                <ProtectedRoute roles={route.role}>
+                  {route.component}
+                </ProtectedRoute>
+              </PasswordCheck>
             }
             key={route.key}
           >
@@ -133,12 +136,14 @@ export default function App() {
               <Route
                 path={child.route}
                 element={
-                  <ProtectedRoute roles={child.role}>
-                    {child.component}
-                  </ProtectedRoute>
+                  <PasswordCheck>
+                    <ProtectedRoute roles={child.role}>
+                      {child.component}
+                    </ProtectedRoute>
+                  </PasswordCheck>
                 }
                 key={child.key}
-              />
+              />,
             )}
           </Route>
         );
@@ -178,7 +183,7 @@ export default function App() {
             <Sidenav
               color={sidenavColor}
               brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-              brandName="Employee management system"
+              brandName="HR system"
               routes={routes}
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
@@ -205,7 +210,7 @@ export default function App() {
           <Sidenav
             color={sidenavColor}
             brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-            brandName="Employee Management"
+            brandName="HR system"
             routes={routes}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}

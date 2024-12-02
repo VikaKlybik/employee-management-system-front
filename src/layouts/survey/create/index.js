@@ -18,6 +18,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import MDButton from "../../../components/MDButton";
 import CompetencyService from "../../../services/CompetencyService";
 import SurveyService from "../../../services/SurveyService";
+import { useNavigate } from "react-router-dom";
 
 const SurveyButton = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(2),
@@ -38,6 +39,7 @@ function SurveyCreate() {
   const [competency, setCompetency] = useState([]);
   const competencyService = new CompetencyService();
   const surveyService = new SurveyService();
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchAllCompetency() {
@@ -75,6 +77,7 @@ function SurveyCreate() {
       ),
     };
     await surveyService.compositeCreateSurvey(surveyCreateRequest);
+    navigate("/survey")
   };
 
   // Handler for updating question text
@@ -198,7 +201,7 @@ function SurveyCreate() {
                       </MDButton>
                     </Grid>
                     <Grid item xs={12} md={6} lg={3}>
-                      <MDButton variant="contained" color="success" fullWidth onClick={handleCreateSurvey}>
+                      <MDButton variant="contained" color="success" fullWidth onClick={handleCreateSurvey} disabled={!surveyName && !surveyDescription && !surveyMethod && (!questions || questions.length ===0)}>
                         Создать опрос
                       </MDButton>
                     </Grid>

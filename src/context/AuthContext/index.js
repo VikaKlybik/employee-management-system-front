@@ -31,13 +31,21 @@ export const AuthProvider = ({ children }) => {
     }
     return null;
   }
+  const isFirstStart = () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      return { ...decodedToken, token }.isFirstStart;
+    }
+    return null;
+  }
 
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
   };
 
-  return <AuthContext.Provider value={{ user, login, logout, getUser }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, isFirstStart, login, logout, getUser }}>{children}</AuthContext.Provider>;
 };
 
 BasicLayout.propTypes = {

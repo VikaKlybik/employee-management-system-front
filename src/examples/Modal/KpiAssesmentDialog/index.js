@@ -13,6 +13,7 @@ import MDTypography from "../../../components/MDTypography";
 import MDInput from "../../../components/MDInput";
 import MDButton from "../../../components/MDButton";
 import { useForm } from "react-hook-form";
+import MDSnackbar from "../../../components/MDSnackbar";
 
 export default function KpiAssessmentModal({ isModalOpen }) {
   const { id } = useParams();
@@ -22,6 +23,38 @@ export default function KpiAssessmentModal({ isModalOpen }) {
   const [tableData, setTableData] = useState({ columns: [], rows: [] });
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const [successSB, setSuccessSB] = useState(false);
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = () => setErrorSB(true);
+  const closeErrorSB = () => setErrorSB(false);
+  const openSuccessSB = () => setSuccessSB(true);
+  const closeSuccessSB = () => setSuccessSB(false);
+  const [message, setMessage] = useState("");
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title="Инфорамация"
+      content={message}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite
+    />
+  );
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title="Ошибка"
+      content={message}
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
 
   const closeModal = () => {
     navigate(-1); // Go back to the previous route
@@ -56,17 +89,15 @@ export default function KpiAssessmentModal({ isModalOpen }) {
         comments: data.comments,
         actualValue: Number(data.actualValue)
       });
-      setKpiData((prev) => ({
-        ...prev,
-        kpiAssessments: [...prev.kpiAssessments, {
-          comments: data.comments,
-          actualValue: Number(data.actualValue),
-          assessmentDate: createFormattedDate()
-        }],
-      }));
+      const response = await kpiService.getKPIById(id);
+      console.log(response.data);
+      setKpiData(response.data);
       reset();
+      setMessage("Изменения успешно сохранены!")
+      openSuccessSB()
     } catch (error) {
-      console.error("Error adding KPI assessment:", error);
+      setMessage("Попробуйти позже или обратитесь в поддержку!")
+      openErrorSB()
     }
   };
 
@@ -126,10 +157,7 @@ export default function KpiAssessmentModal({ isModalOpen }) {
                     required: "Фактическое значение не указано!",
                     validate: {
                       inRange: (value) =>
-                        kpiData?.measureUnit === 'PERCENT' ?
-                          (value >= 0 && value <= 100 || "Значение должно быть в диапазоне от 0 до 100!")
-                      : (value >= 0 && value <= kpiData.targetValue || `Значение должно быть в диапазоне от 0 до ${kpiData.targetValue}!`
-                          ),
+                        value > 0 || `Значение должно быть больше 0 !`
                     },
                     isInteger: (value) =>
                       kpiData?.measureUnit === 'COUNT' || Number.isInteger(parseFloat(value)) || "Значение должно быть целым числом!"
@@ -166,6 +194,8 @@ export default function KpiAssessmentModal({ isModalOpen }) {
             </CardContent>
           </Card>
         )}
+        {renderErrorSB}
+        {renderSuccessSB}
       </DialogContent>
       <DialogActions>
 

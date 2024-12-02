@@ -69,8 +69,8 @@ export default function EmployeeEvaluatorsSelectionDialog({ open, onClose, onSel
 
   const handleSelectEmployee = (employee) => {
     setSelectedEmployees((prevSelected) =>
-      prevSelected.includes(employee)
-        ? prevSelected.filter((emp) => emp !== employee)
+      prevSelected.some((item) => item.id === employee.id)
+        ? prevSelected.filter((emp) => emp.id !== employee.id) // Сравниваем по id
         : [...prevSelected, employee]
     );
   };

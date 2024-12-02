@@ -18,6 +18,7 @@ import SurveyTableForEmployee
 import { useAuth } from "../../../context/AuthContext";
 import ViewDevelopmentPlanForEmployeeModal
   from "../../developmentPlan/viewForEmployee/ViewDevelopmentPlanForEmployeeModal";
+import MDSnackbar from "../../../components/MDSnackbar";
 
 function SurveyOverviewForEmployee() {
   const { id } = useParams();
@@ -27,6 +28,38 @@ function SurveyOverviewForEmployee() {
   const [type, setType] = useState(null);
   const [assessments, setAssessments] = useState([]);
   const authContext = useAuth();
+  const [successSB, setSuccessSB] = useState(false);
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = () => setErrorSB(true);
+  const closeErrorSB = () => setErrorSB(false);
+  const openSuccessSB = () => setSuccessSB(true);
+  const closeSuccessSB = () => setSuccessSB(false);
+  const [message, setMessage] = useState("");
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title="Инфорамация"
+      content={message}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite
+    />
+  );
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title="Ошибка"
+      content={message}
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
 
   const {
     sidenavColor,
@@ -90,8 +123,11 @@ function SurveyOverviewForEmployee() {
 
       // Освобождаем ресурсы
       window.URL.revokeObjectURL(url);
+      setMessage("Отчёт отобразиться в скаченных файлах!")
+      openSuccessSB()
     } catch (error) {
-      console.log(error);
+      setMessage("Попробуйти позже или обратитесь в поддержку!")
+      openErrorSB()
     }
   };
 
@@ -222,6 +258,8 @@ function SurveyOverviewForEmployee() {
           </MDBox>
         </Card>)
       }
+      {renderErrorSB}
+      {renderSuccessSB}
       <ViewDevelopmentPlanForEmployeeModal
         onClose={handleDevelopmentPlanDialogClose}
         isModalOpen={isDevelopmentPlanModalOpen}
