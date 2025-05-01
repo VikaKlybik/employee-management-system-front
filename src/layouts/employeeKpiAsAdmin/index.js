@@ -70,19 +70,19 @@ function EmployeeKPITables() {
     />
   );
 
-  useEffect(() => {
-    async function fetchAllEmployeeKpi() {
-      try {
-        const response = await kpiService.getKPIForEmployee(id, {
-          kpiPeriodId: selectedKpiPeriod,
-        });
-        console.log("Fetched kpi data:", response.data); // Debug log
-        setKpiList(response.data);
-      } catch (error) {
-        console.log("Error fetching employee:", error);
-      }
+  async function fetchAllEmployeeKpi() {
+    try {
+      const response = await kpiService.getKPIForEmployee(id, {
+        kpiPeriodId: selectedKpiPeriod,
+      });
+      console.log("Fetched kpi data:", response.data); // Debug log
+      setKpiList(response.data);
+    } catch (error) {
+      console.log("Error fetching employee:", error);
     }
+  }
 
+  useEffect(() => {
     if (id && selectedKpiPeriod) {
       fetchAllEmployeeKpi();
     }
@@ -131,17 +131,11 @@ function EmployeeKPITables() {
             };
           }),
         );
-        const responseKPI = await kpiService.getKPIPeriods();
-        setKpiPeriods(response.data.map(({ id, startDate, endDate }) => {
-          return {
-            value: id,
-            name: `${formatDate(startDate)} - ${formatDate(endDate)}`,
-          };
-        }));
-        setKpiList(responseKPI.data);
+        fetchAllEmployeeKpi();
         setIsKPICreationDialogOpen(false);
         setMessage("KPI успешно выставлены!");
         openSuccessSB();
+        setNewKpiList([])
       } catch (error) {
         setMessage("Попробуйти позже или обратитесь в поддержку!");
         openErrorSB();

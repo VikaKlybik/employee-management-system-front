@@ -34,8 +34,9 @@ export default function KpiAssessmentModalAsAdmin({ isModalOpen }) {
         console.log(error);
       }
     }
-
-    fetchKPIById();
+    if(kpiId) {
+      fetchKPIById();
+    }
   }, [kpiId]);
 
   useEffect(() => {

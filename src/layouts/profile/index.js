@@ -24,6 +24,7 @@ import React, { useEffect, useState } from "react";
 import EmployeeService from "../../services/EmployeeService";
 import SurveyService from "../../services/SurveyService";
 import MDSnackbar from "../../components/MDSnackbar";
+import CompetenciesChartForEmployee from "../competencyHistory/components/CompetenciesChartForEmployee";
 
 function Overview() {
   const [employee, setEmployee] = useState(null);
@@ -137,7 +138,7 @@ function Overview() {
       }
         handleChangeAvatar={handleChangeAvatar}
       >
-        <MDBox mt={5} mb={3}>
+        {employee?.user && <MDBox mt={5} mb={3}>
           <Grid container spacing={1}>
             <Grid item xs={12} xl={6} sx={{ display: "flex" }}>
               <Divider orientation="vertical" sx={{ ml: -2, mr: 1 }} />
@@ -158,6 +159,7 @@ function Overview() {
             </Grid>
           </Grid>
         </MDBox>
+        }
         <MDBox pt={2} px={2} lineHeight={1.25}>
           <MDTypography variant="h6" fontWeight="medium">
             Опросы
@@ -189,6 +191,10 @@ function Overview() {
             {renderErrorSB}
             {renderSuccessSB}
           < /Grid>
+        </MDBox>
+        <MDBox p={2}>
+          <h3 style={{ fontWeight: 600, marginBottom: 10 }}>История оценок компетенции на основании опросов</h3>
+          <CompetenciesChartForEmployee userId={employee?.user?.id}/>
         </MDBox>
       </Header>
 
