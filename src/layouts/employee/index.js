@@ -16,6 +16,8 @@ import EmployeeFilterDialog from "../../examples/Modal/EmployeeFilterDialog";
 import ClearIcon from "@mui/icons-material/Clear";
 import IconButton from "@mui/material/IconButton";
 import { useAuth } from "../../context/AuthContext";
+import CompetenciesForEmployeeDialog from "../../examples/Modal/CompetenciesForEmployeeDialog";
+import { useLocation, useNavigate } from "react-router-dom";
 
 
 function EmployeeTables() {
@@ -34,11 +36,15 @@ function EmployeeTables() {
   const [isFilterEmployeeOpen, setIsFilterEmployeeOpen] = useState(false);
   const auth = useAuth();
   const user = auth.getUser();
+  const navigate = useNavigate()
   const [searchParam, setSearchParam] = useState({
     search: null,
     departmentId: null,
     jobTitleId: null,
   });
+  const location = useLocation();
+  const isModalOpen = location.pathname.includes("/employee/competencies/");
+
 
   const renderSuccessSB = (
     <MDSnackbar
@@ -65,6 +71,10 @@ function EmployeeTables() {
     />
   );
 
+  const competenciesNavigate = (userId) => {
+    navigate(`/employee/competencies/${userId}`)
+  }
+
 
   useEffect(() => {
     async function fetchAllEmployee() {
@@ -82,7 +92,7 @@ function EmployeeTables() {
 
   useEffect(() => {
     if (employees) {
-      const myTableData = employeeTableData(employees, handleSelectEmployee);
+      const myTableData = employeeTableData(employees, handleSelectEmployee, competenciesNavigate);
       console.log("Generated table data:", myTableData); // Debug log
       setTableData(myTableData);
     }
@@ -232,6 +242,9 @@ function EmployeeTables() {
           employeeData={selectedEmployee}
         />
       )}
+      <CompetenciesForEmployeeDialog
+        isModalOpen={isModalOpen}
+        />
     </DashboardLayout>
   );
 }

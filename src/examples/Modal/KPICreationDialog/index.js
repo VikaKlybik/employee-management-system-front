@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Button,
   Container,
@@ -40,6 +40,16 @@ export default function KPICreationDialog({kpiList, setKpiList,  open, onClose, 
     setTotalWeight(totalWeight + Number(data.weight));
     reset();
   };
+
+  useEffect(() => {
+    setTableData({
+      columns: [],
+      rows: [],
+    })
+    setTotalWeight(0)
+    reset();
+    setKpiList([])
+  }, [open]);
 
   useEffect(() => {
     if (kpiList) {

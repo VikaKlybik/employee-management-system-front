@@ -46,6 +46,10 @@ class SurveyService {
     return ApiService.post(`/survey/passing/get/assessment-summary`, data);
   }
 
+  async getHistoryAssessments(userId) {
+    return ApiService.get(`/survey/passing/history/assessment-summary/for-employee/${userId}`);
+  }
+
   async getUniqueCompetencyForSurveyById(surveyId) {
     return ApiService.get( `/survey/${surveyId}/competency`);
   }

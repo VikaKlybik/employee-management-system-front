@@ -160,7 +160,7 @@ export default function CreateDevelopmentPlanForEmployeeModal({ isModalOpen, onC
                 margin="normal"
                 {...register("comments")}
               />
-              <InputLabel id="development_plan_competency">Вид опроса</InputLabel>
+              <InputLabel id="development_plan_competency">Компетенция</InputLabel>
               <Select
                 labelId="development_plan_competency"
                 fullWidth
