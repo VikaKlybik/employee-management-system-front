@@ -7,7 +7,7 @@ import MDBadge from "components/MDBadge";
 // Images
 import team2 from "assets/images/team-2.jpg";
 
-export default function EmployeeTableData( employees, handleSelectedEmployee ) {
+export default function EmployeeTableData( employees, handleSelectedEmployee, competenciesNavigate ) {
   // eslint-disable-next-line react/prop-types
   const Author = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
@@ -45,6 +45,7 @@ export default function EmployeeTableData( employees, handleSelectedEmployee ) {
       { Header: "Работает с", accessor: "employed", align: "center" },
       { Header: "Действие", accessor: "action", align: "center" },
       { Header: "KPI", accessor: "kpi", align: "center"},
+      { Header: "Анализ компетенций", accessor: "competency", align: "center"}
     ],
 
     rows: employees?.map(({ id, user, jobTitle, department, workSince }, index) => {
@@ -71,6 +72,19 @@ export default function EmployeeTableData( employees, handleSelectedEmployee ) {
         kpi : (
           <MDTypography component="a" href={`/kpi/for-employee/${id}`} variant="overline" color="info" fontWeight="medium">
             Смотреть
+          </MDTypography>
+        ),
+        competency : (
+          <MDTypography component="button" variant="overline" color="info"
+                        fontWeight="medium" onClick ={() => competenciesNavigate(user.id)}
+                        style={{
+                          border: 'none',
+                          background: 'none',
+                          padding: 0,
+                          margin: 0,
+                          cursor: 'pointer',
+                        }}>
+            Изучить
           </MDTypography>
         ),
       };
